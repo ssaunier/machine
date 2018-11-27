@@ -34,10 +34,23 @@ class Machine:
         self.amount += coin.value
 
     def press(self, code):
-        if self.amount >= self.racks[code].price:
-            if self.racks[code].quantity > 0:
-                self.racks[code].quantity -= 1
+        rack = self.racks[code]
+        if self.amount >= rack.price:
+            if rack.quantity > 0:
+                rack.quantity -= 1
+                change = self.amount - rack.price
+                if change > 0:
+                    self.__give_change(change)
+                self.amount -= rack.price
             else:
+                self.__give_change(self.amount)
                 print("product not available")
         else:
             print("not enough money")
+
+    def __give_change(self, change):
+        for coin in reversed(Coin):
+            count = change // coin.value
+            if count <= self.coins[coin]:
+                change = change % coin.value
+                self.coins[coin] -= count
